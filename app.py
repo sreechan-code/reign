@@ -1,0 +1,109 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import joblib
+from xgboost import XGBRegressor
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+# Load trained model
+model = XGBRegressor()
+model.load_model("xgboost_wait_time.json")
+
+# Load label encoders
+categorical_cols = ["Region", "Day of Week", "Season", "Time of Day", "Urgency Level", "Patient Outcome"]
+label_encoders = {col: LabelEncoder() for col in categorical_cols}
+
+# Load sample dataset to fit encoders
+df_sample = pd.read_csv("healthh.csv")
+df_sample = df_sample.drop(columns=["Visit ID", "Patient ID", "Hospital ID", "Hospital Name", "Visit Date"], errors='ignore')
+
+df_sample[categorical_cols] = df_sample[categorical_cols].astype(str)
+for col in categorical_cols:
+    label_encoders[col].fit(df_sample[col])
+
+# Identify numeric features
+numeric_features = [col for col in df_sample.columns if col not in categorical_cols and col != "Total Wait Time (min)"]
+scaler = StandardScaler()
+scaler.fit(df_sample[numeric_features])
+
+# Custom CSS Styles
+st.markdown(
+    """
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+        }
+        .main-title {
+            color: #2c3e50;
+            font-size: 36px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .sub-header {
+            color: #34495e;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .stButton>button {
+            background-color: #2ecc71;
+            color: white;
+            font-size: 18px;
+            border-radius: 8px;
+            padding: 10px 24px;
+        }
+        .stButton>button:hover {
+            background-color: #27ae60;
+        }
+        .image-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: -40px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Display Logo on Left
+st.markdown('<div class="image-container">', unsafe_allow_html=True)
+st.image("reign clinic.png", width=300)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# App Title
+st.markdown('<div class="main-title">Smart Healthcare Appointment Scheduler</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Predict Patient Wait Time</div>', unsafe_allow_html=True)
+
+# User Inputs
+user_inputs = {}
+for col in categorical_cols:
+    user_inputs[col] = st.selectbox(col, df_sample[col].unique())
+
+for col in numeric_features:
+    user_inputs[col] = st.number_input(f"{col}", value=float(df_sample[col].mean()))
+
+# Prediction Button
+if st.button("Predict Wait Time"):
+    # Encode categorical inputs
+    encoded_inputs = {}
+    for col in categorical_cols:
+        if user_inputs[col] in label_encoders[col].classes_:
+            encoded_inputs[col] = label_encoders[col].transform([user_inputs[col]])[0]
+        else:
+            st.warning(f"Warning: '{user_inputs[col]}' is a new category. Using a default value.")
+            encoded_inputs[col] = -1  
+
+    # Create DataFrame with correct feature names
+    input_data = pd.DataFrame([{**encoded_inputs, **{col: user_inputs[col] for col in numeric_features}}])
+    
+    # Ensure correct feature order
+    input_data = input_data[df_sample.drop(columns=["Total Wait Time (min)"]).columns]
+    
+    # Standardize numerical features
+    input_data[numeric_features] = scaler.transform(input_data[numeric_features])
+    
+    # Make prediction
+    predicted_wait_time = model.predict(input_data)[0]
+    
+    st.success(f"Predicted Wait Time: {predicted_wait_time:.2f} minutes")
