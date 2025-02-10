@@ -2,29 +2,22 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-from xgboost import XGBRegressor
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-# Load trained model
-model = XGBRegressor()
-model.load_model("xgboost_wait_time.json")
+# Load trained model from .pkl file
+model = joblib.load("xgboost_wait_time.pkl")
 
 # Load label encoders
 categorical_cols = ["Region", "Day of Week", "Season", "Time of Day", "Urgency Level", "Patient Outcome"]
-label_encoders = {col: LabelEncoder() for col in categorical_cols}
+label_encoders = {col: joblib.load(f"{col}_label_encoder.pkl") for col in categorical_cols}
 
 # Load sample dataset to fit encoders
 df_sample = pd.read_csv("healthh.csv")
 df_sample = df_sample.drop(columns=["Visit ID", "Patient ID", "Hospital ID", "Hospital Name", "Visit Date"], errors='ignore')
 
-df_sample[categorical_cols] = df_sample[categorical_cols].astype(str)
-for col in categorical_cols:
-    label_encoders[col].fit(df_sample[col])
-
 # Identify numeric features
 numeric_features = [col for col in df_sample.columns if col not in categorical_cols and col != "Total Wait Time (min)"]
-scaler = StandardScaler()
-scaler.fit(df_sample[numeric_features])
+scaler = joblib.load("scaler.pkl")
 
 # Custom CSS Styles
 st.markdown(
@@ -78,7 +71,7 @@ st.markdown('<div class="sub-header">Predict Patient Wait Time</div>', unsafe_al
 # User Inputs
 user_inputs = {}
 for col in categorical_cols:
-    user_inputs[col] = st.selectbox(col, df_sample[col].unique())
+    user_inputs[col] = st.selectbox(col, df_sample[col].astype(str).unique())
 
 for col in numeric_features:
     user_inputs[col] = st.number_input(f"{col}", value=float(df_sample[col].mean()))
