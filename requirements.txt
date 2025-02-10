@@ -1,9 +1,0 @@
-streamlit
-pandas
-numpy
-joblib
-xgboost
-scikit-learn
-flask  # If you're using a backend
-flask-cors  # For handling CORS in Flask
-requests  # If making API calls
