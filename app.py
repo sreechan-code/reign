@@ -5,23 +5,24 @@ import joblib
 import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-# Load trained model from JSON format
-model = xgb.XGBRegressor()
-model.load_model("xgboost_wait_time.json")  # Ensure this file is uploaded to GitHub
+# Load trained model from .pkl file
+model = joblib.load("xgboost_wait_time.pkl")
 
 # Load label encoders
 categorical_cols = ["Region", "Day of Week", "Season", "Time of Day", "Urgency Level", "Patient Outcome"]
 label_encoders = {col: joblib.load(f"{col}_label_encoder.pkl") for col in categorical_cols}
 
-# Load sample dataset to fit encoders
+# Load sample dataset for reference
 df_sample = pd.read_csv("healthh.csv")
-df_sample = df_sample.drop(columns=["Visit ID", "Patient ID", "Hospital ID", "Hospital Name", "Visit Date"], errors='ignore')
+df_sample.drop(columns=["Visit ID", "Patient ID", "Hospital ID", "Hospital Name", "Visit Date"], inplace=True, errors='ignore')
 
 # Identify numeric features
 numeric_features = [col for col in df_sample.columns if col not in categorical_cols and col != "Total Wait Time (min)"]
 scaler = joblib.load("scaler.pkl")
 
-# Custom CSS Styles
+# Streamlit App UI
+st.set_page_config(page_title="Smart Healthcare Appointment Scheduler", layout="centered")
+
 st.markdown(
     """
     <style>
@@ -51,20 +52,13 @@ st.markdown(
         .stButton>button:hover {
             background-color: #27ae60;
         }
-        .image-container {
-            display: flex;
-            justify-content: flex-start;
-            margin-bottom: -40px;
-        }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Display Logo on Left
-st.markdown('<div class="image-container">', unsafe_allow_html=True)
+# Display Logo
 st.image("reign clinic.png", width=300)
-st.markdown('</div>', unsafe_allow_html=True)
 
 # App Title
 st.markdown('<div class="main-title">Smart Healthcare Appointment Scheduler</div>', unsafe_allow_html=True)
