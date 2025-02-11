@@ -1,0 +1,4 @@
+seasons = ["Winter", "Spring", "Summer", "Autumn"]
+encoder = LabelEncoder()
+encoder.fit(seasons)
+joblib.dump(encoder, "Season_label_encoder.pkl")
