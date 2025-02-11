@@ -1,0 +1,4 @@
+time_of_day = ["Morning", "Afternoon", "Evening", "Night"]
+encoder = LabelEncoder()
+encoder.fit(time_of_day)
+joblib.dump(encoder, "Time of Day_label_encoder.pkl")
