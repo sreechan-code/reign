@@ -1,5 +1,0 @@
-import xgboost as xgb
-import json
-
-# Assuming `model` is your trained XGBoost model
-model.save_model("xgboost_wait_time.json")
