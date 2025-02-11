@@ -1,0 +1,7 @@
+import joblib
+from sklearn.preprocessing import LabelEncoder
+
+regions = ["North", "South", "East", "West", "Central"]
+encoder = LabelEncoder()
+encoder.fit(regions)
+joblib.dump(encoder, "Region_label_encoder.pkl")
