@@ -1,5 +1,8 @@
 import joblib
 import xgboost as xgb
 
-# Assume 'model' is your trained XGBoost model
+# Load your trained model (make sure this is the final trained model)
+model = xgb.XGBRegressor()  # Replace with your actual model
+
+# Save the model
 joblib.dump(model, "xgboost_wait_time.pkl")
