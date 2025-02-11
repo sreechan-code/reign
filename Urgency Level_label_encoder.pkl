@@ -1,0 +1,4 @@
+urgency = ["Low", "Medium", "High", "Critical"]
+encoder = LabelEncoder()
+encoder.fit(urgency)
+joblib.dump(encoder, "Urgency Level_label_encoder.pkl")
