@@ -1,0 +1,4 @@
+outcomes = ["Recovered", "Ongoing Treatment", "Referred", "Deceased"]
+encoder = LabelEncoder()
+encoder.fit(outcomes)
+joblib.dump(encoder, "Patient Outcome_label_encoder.pkl")
