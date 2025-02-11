@@ -1,0 +1,4 @@
+days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+encoder = LabelEncoder()
+encoder.fit(days)
+joblib.dump(encoder, "Day of Week_label_encoder.pkl")
