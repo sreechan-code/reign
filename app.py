@@ -2,10 +2,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-# Load trained model from .pkl file
-model = joblib.load("xgboost_wait_time.pkl")
+# Load trained model from JSON format
+model = xgb.XGBRegressor()
+model.load_model("xgboost_wait_time.json")  # Ensure this file is uploaded to GitHub
 
 # Load label encoders
 categorical_cols = ["Region", "Day of Week", "Season", "Time of Day", "Urgency Level", "Patient Outcome"]
