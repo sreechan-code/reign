@@ -1,0 +1,5 @@
+import joblib
+from sklearn.preprocessing import StandardScaler
+
+# Assume 'scaler' is your trained StandardScaler
+joblib.dump(scaler, "scaler.pkl")
